@@ -1,4 +1,4 @@
-import { ModalType, Note } from "../types/note";
+import { CreatedNoteParamsType, Note } from "../types/note";
 import axios from "axios";
 const SwaggerUrl = import.meta.env.VITE_NOTEHUB_TOKEN;
 
@@ -31,8 +31,10 @@ export const fetchNotes = async (
   return response.data;
 };
 
-export const createNote = async (values: ModalType): Promise<Note> => {
-  const response = await axios.post(ReqUrl, values, {
+export const createNote = async (
+  values: CreatedNoteParamsType
+): Promise<Note> => {
+  const response = await axios.post<Note>(ReqUrl, values, {
     headers: {
       Authorization: `Bearer ${SwaggerUrl} `,
     },
@@ -40,10 +42,11 @@ export const createNote = async (values: ModalType): Promise<Note> => {
   return response.data;
 };
 
-export const deleteNote = async (id: Note["id"]) => {
-  await axios.delete(`${ReqUrl}/${id}`, {
+export const deleteNote = async (id: Note["id"]): Promise<Note> => {
+  const response = await axios.delete<Note>(`${ReqUrl}/${id}`, {
     headers: {
       Authorization: `Bearer ${SwaggerUrl} `,
     },
   });
+  return response.data;
 };

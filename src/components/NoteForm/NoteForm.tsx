@@ -2,19 +2,23 @@ import { useId } from "react";
 import css from "./NoteForm.module.css";
 import { Formik, Form, Field, ErrorMessage, FormikHelpers } from "formik";
 import * as Yup from "yup";
-import { ModalType } from "../../types/note";
+import { createNote } from "../../services/noteService";
+import { CreatedNoteParamsType, Note } from "../../types/note";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 interface NoteFormProps {
-  handleSubmit: (values: ModalType, actions: FormikHelpers<ModalType>) => void;
+  onClose: () => void;
+  onSuccess: () => void;
 }
 
-const initialValues: ModalType = {
+const initialValues: CreatedNoteParamsType = {
   title: "",
   content: "",
   tag: "",
 };
 
-export default function NoteForm({ handleSubmit }: NoteFormProps) {
+export default function NoteForm({ onClose, onSuccess }: NoteFormProps) {
   const validationSchema = Yup.object().shape({
     title: Yup.string()
       .min(3, "Title is too short")
@@ -29,6 +33,35 @@ export default function NoteForm({ handleSubmit }: NoteFormProps) {
       .required("Tag is required"),
   });
   const fieldId = useId();
+
+  const queryClient = useQueryClient();
+
+  const { mutate } = useMutation<Note, Error, CreatedNoteParamsType>({
+    mutationFn: (values) => createNote(values),
+  });
+
+  const handleSubmit = (
+    values: CreatedNoteParamsType,
+    actions: FormikHelpers<CreatedNoteParamsType>
+  ) => {
+    actions.resetForm();
+    mutate(
+      {
+        title: values.title,
+        content: values.content,
+        tag: values.tag,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["notes"] });
+          onSuccess();
+        },
+        onError: () => {
+          toast("Nothing to add");
+        },
+      }
+    );
+  };
 
   return (
     <Formik
@@ -74,7 +107,7 @@ export default function NoteForm({ handleSubmit }: NoteFormProps) {
         </div>
 
         <div className={css.actions}>
-          <button type="button" className={css.cancelButton}>
+          <button onClick={onClose} type="button" className={css.cancelButton}>
             Cancel
           </button>
           <button type="submit" className={css.submitButton} disabled={false}>

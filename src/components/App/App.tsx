@@ -8,6 +8,7 @@ import SearchBox from "../SearchBox/SearchBox";
 import Pagination from "../Pagination/Pagination";
 import { useDebouncedCallback } from "use-debounce";
 import Modal from "../Modal/Modal";
+import NoteForm from "../NoteForm/NoteForm";
 
 function App() {
   const [page, setPage] = useState(1);
@@ -24,7 +25,10 @@ function App() {
   const totalPages = data?.totalPages ?? 0;
 
   const updateQuery = useDebouncedCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setNewQuery(e.target.value),
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setNewQuery(e.target.value);
+      setPage(1);
+    },
     300
   );
 
@@ -52,7 +56,11 @@ function App() {
       </header>
       {data && !isLoading && <NoteList notes={data.notes} />}
       {isLoading && <TailSpin />}
-      {isModalOpen && <Modal onSuccess={onSuccess} onClose={onClose} />}
+      {isModalOpen && (
+        <Modal onClose={onClose}>
+          <NoteForm onClose={onClose} onSuccess={onSuccess} />
+        </Modal>
+      )}
     </div>
   );
 }

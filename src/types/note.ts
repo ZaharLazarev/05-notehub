@@ -6,7 +6,7 @@ export interface Note {
   updatedAt: string;
   tag: string;
 }
-export interface ModalType {
+export interface CreatedNoteParamsType {
   title: string;
   content: string;
   tag: string;
