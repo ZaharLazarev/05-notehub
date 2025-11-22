@@ -1,6 +1,6 @@
 import { CreatedNoteParamsType, Note } from "../types/note";
 import axios from "axios";
-const SwaggerUrl = import.meta.env.VITE_NOTEHUB_TOKEN;
+const AuthorizationToken = import.meta.env.VITE_NOTEHUB_TOKEN;
 
 export interface NoteServiceType {
   notes: Note[];
@@ -24,7 +24,7 @@ export const fetchNotes = async (
       perPage: 12,
     },
     headers: {
-      Authorization: `Bearer ${SwaggerUrl} `,
+      Authorization: `Bearer ${AuthorizationToken}`,
     },
   };
   const response = await axios.get<NoteServiceType>(ReqUrl, configurations);
@@ -36,7 +36,7 @@ export const createNote = async (
 ): Promise<Note> => {
   const response = await axios.post<Note>(ReqUrl, values, {
     headers: {
-      Authorization: `Bearer ${SwaggerUrl} `,
+      Authorization: `Bearer ${AuthorizationToken} `,
     },
   });
   return response.data;
@@ -45,7 +45,7 @@ export const createNote = async (
 export const deleteNote = async (id: Note["id"]): Promise<Note> => {
   const response = await axios.delete<Note>(`${ReqUrl}/${id}`, {
     headers: {
-      Authorization: `Bearer ${SwaggerUrl} `,
+      Authorization: `Bearer ${AuthorizationToken} `,
     },
   });
   return response.data;
